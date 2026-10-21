@@ -4,7 +4,7 @@
 
 ## 与官方版并存
 
-- applicationId：`io.github.minggnim.guizangtv`，显示名称“归藏电视·定制”。
+- applicationId：`io.github.minggnim.guizangtv`，显示名称“哈怪鱼电视”。
 - 官方版 `io.github.op7418.guizangtv` 不覆盖、不卸载，其数据保持原状。
 - CI 产物仍为临时 debug 签名。电视部署包在本机用 `.local-signing/` 中的固定身份重新签名；私钥和密码仅存本机且被 Git 忽略，不上传 GitHub。后续部署必须沿用该签名。
 - 不新增网络权限、遥测、无障碍或悬浮窗。启动恢复使用通知监听绑定（不处理通知内容）；保持 ADB 使用 WRITE_SECURE_SETTINGS，均须显式授权。
@@ -50,3 +50,7 @@ JSON 示例（仅结构示意）：
 保持 ADB 是独立选项，默认关闭；用户请求启用时授予 WRITE_SECURE_SETTINGS 并打开 keep_adb。事件监听 global adb_enabled，若固件关闭调试会恢复为 1。要手动关闭 ADB，先关闭应用的保持 ADB 选项。通知监听和设置权限可分别撤销，不需要 root 或停用系统应用。
 
 设置保存会显示确认，并把开机广播、屏幕事件、监听绑定及启动结果保存在诊断字段中。完整重启与待机必须分别验收；启动编号不变不能算完整重启。
+
+## 显示名称
+
+当前应用、启动提示和通知统一使用“哈怪鱼电视”品牌。为保留已安装版本的数据与授权，applicationId、Java namespace 和签名不变；原上游署名与许可保留。

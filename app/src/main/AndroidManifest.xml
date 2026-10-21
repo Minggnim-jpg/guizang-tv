@@ -11,7 +11,7 @@
         <package android:name="com.xiaomi.mitv.tvplayer" />
         <package android:name="com.mitv.tvhome" />
     </queries>
-    <application android:label="归藏电视·定制" android:icon="@drawable/ic_launcher"
+    <application android:label="@string/app_name" android:icon="@drawable/ic_launcher"
         android:banner="@drawable/banner" android:theme="@style/Theme.GuiZangTV"
         android:allowBackup="false" android:supportsRtl="true">
         <activity android:name=".FrameHomeActivity" android:exported="true"
@@ -35,7 +35,7 @@
         </receiver>
         <service android:name=".StartupService" android:exported="false" />
         <service android:name=".StartupRevivalListener" android:exported="true"
-            android:label="归藏启动恢复（不处理通知）"
+            android:label="哈怪鱼启动恢复（不处理通知）"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter>
         </service>

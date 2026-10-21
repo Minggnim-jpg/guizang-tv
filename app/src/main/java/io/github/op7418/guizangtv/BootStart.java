@@ -60,7 +60,7 @@ public final class BootStart {
         }
         boolean[] choices = { enabled(a), wakeEnabled(a), keepAdb(a) };
         new AlertDialog.Builder(a).setTitle("启动适配（实验）")
-                .setMultiChoiceItems(new String[]{"完整重启后进入归藏", "待机唤醒后进入归藏（常驻服务）", "保持 ADB 调试（需电脑授权）"}, choices,
+                .setMultiChoiceItems(new String[]{"完整重启后进入哈怪鱼", "待机唤醒后进入哈怪鱼（常驻服务）", "保持 ADB 调试（需电脑授权）"}, choices,
                         (d, which, checked) -> choices[which] = checked)
                 .setPositiveButton("保存", (d, which) -> {
                     if (!prefs(a).edit().putBoolean("enabled", choices[0])
