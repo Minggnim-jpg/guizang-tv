@@ -1,7 +1,7 @@
 name: Android
 on:
   push:
-    branches: [main]
+    branches: [main, codex/astp0-startup]
   pull_request:
   workflow_dispatch:
 

@@ -2,84 +2,53 @@ package io.github.op7418.guizangtv;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.SystemClock;
-import android.provider.Settings;
-import android.util.Log;
-import android.widget.Toast;
+import android.content.*;
+import android.os.Build;
 
-/** Opt-in, once-per-full-boot launch. Never handles screen-on, HDMI or Home keys. */
+/** Fork-only ASTP0 startup: independently opt in to boot and screen-on. */
 public final class BootStart {
-    private static final String PREFS = "boot-start";
-    private static final String EXTRA = "guizang.boot-count";
-    private static SharedPreferences prefs(Context c) {
-        return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-    }
+    static SharedPreferences prefs(Context c) { return c.getSharedPreferences("boot-start", Context.MODE_PRIVATE); }
+    static boolean supported() { return StartupPolicy.supported(Build.MODEL, Build.VERSION.SDK_INT); }
     static boolean enabled(Context c) { return prefs(c).getBoolean("enabled", false); }
-    private static int bootCount(Context c) {
-        return Settings.Global.getInt(c.getContentResolver(), Settings.Global.BOOT_COUNT, -1);
-    }
-    static void enter(Activity a) {
-        int boot = bootCount(a);
-        String reason = BootStartPolicy.skipReason(XiaomiControls.enabled(), enabled(a), boot, prefs(a).getInt("attempted", -1),
-                SystemClock.elapsedRealtime());
-        if (reason != null) { Log.i("GuiZangBoot", reason); return; }
-        if (!prefs(a).edit().putInt("attempted", boot).putString("status", "系统已调用启动入口，等待界面确认").commit()) return;
-        try {
-            a.startActivity(new Intent(a, FrameHomeActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra(EXTRA, boot));
-        } catch (RuntimeException error) {
-            status(a, "启动失败：" + error.getClass().getSimpleName());
-            Log.w("GuiZangBoot", "Launch rejected", error);
+    static boolean wakeEnabled(Context c) { return prefs(c).getBoolean("wake_enabled", false); }
+    static void status(Context c, String value) { prefs(c).edit().putString("status", value).apply(); }
+    // The old package-based Xiaomi hook must not bypass the opt-in service or cause duplicate launches.
+    static void enter(Activity a) { }
+    static void confirm(Activity a) {
+        String reason = a.getIntent().getStringExtra("startup.reason");
+        if (reason != null && a.hasWindowFocus()) {
+            a.getIntent().removeExtra("startup.reason");
+            status(a, reason + "：已进入前台");
         }
-    }
-    private static boolean configured(Context c) {
-        return c.getPackageName().equals(Settings.System.getString(c.getContentResolver(), "start_3rd_app"));
-    }
-    private static void status(Context c, String value) {
-        prefs(c).edit().putString("status", value).apply();
-        Log.i("GuiZangBoot", value);
-    }
-    static void confirm(Activity activity) {
-        Intent intent = activity.getIntent();
-        int boot = intent.getIntExtra(EXTRA, -1);
-        if (boot < 0) return;
-        intent.removeExtra(EXTRA);
-        if (boot == bootCount(activity) && prefs(activity).getInt("attempted", -1) == boot && enabled(activity)) {
-            status(activity, "已在本次开机后进入桌面");
-        }
-    }
-    static void settings(Activity a, Runnable systemSettings) {
-        new AlertDialog.Builder(a).setTitle("设置")
-                .setItems(new String[]{"电视系统设置", "开机自动进入：" + (enabled(a) ? "已开启" : "已关闭")},
-                        (d, i) -> { if (i == 0) systemSettings.run(); else show(a); })
-                .setNegativeButton("返回", null).show();
     }
     static void show(Activity a) {
-        if (!XiaomiControls.enabled()) {
-            new AlertDialog.Builder(a).setTitle("开机自动进入（实验）")
-                    .setMessage("目前仅适配 MiTV-MTSU0。其他机型请先使用普通应用入口。")
-                    .setNegativeButton("返回", null).show();
+        if (!supported()) {
+            new AlertDialog.Builder(a).setTitle("启动适配（实验）")
+                    .setMessage("此定制版仅为 MiTV-ASTP0 / Android 9 准备，其他机型未启用。")
+                    .setPositiveButton("返回", null).show();
             return;
         }
-        String state = prefs(a).getString("status", "尚未进行完整重启测试");
-        new AlertDialog.Builder(a).setTitle("开机自动进入（实验）")
-                .setMessage("仅在完整开机后尝试一次，不接管 Home 键，同次开机的后续调用直接跳过。\n\n"
-                        + "由已适配的小米系统调用启动入口；不需要悬浮窗权限。\n\n"
-                        + "系统入口：" + (configured(a) ? "已配置" : "尚未配置，需电脑设置") + "\n上次状态：" + state)
-                .setPositiveButton(enabled(a) ? "关闭自动进入" : "开启自动进入", (d, which) -> {
-                    boolean value = !enabled(a);
-                    prefs(a).edit().putBoolean("enabled", value).apply();
-                    Toast.makeText(a, value ? (configured(a) ? "已开启，下次完整重启时尝试进入" : "开关已开启，还需按项目文档配置系统入口") : "已关闭开机自动进入", Toast.LENGTH_LONG).show();
+        boolean[] choices = { enabled(a), wakeEnabled(a) };
+        new AlertDialog.Builder(a).setTitle("启动适配（实验）")
+                .setMultiChoiceItems(new String[]{"完整重启后进入归藏", "待机唤醒后进入归藏（常驻服务）"}, choices,
+                        (d, which, checked) -> choices[which] = checked)
+                .setPositiveButton("保存", (d, which) -> {
+                    if (!prefs(a).edit().putBoolean("enabled", choices[0])
+                            .putBoolean("wake_enabled", choices[1]).putBoolean("screen_off", false).commit()) return;
+                    Intent service = new Intent(a, StartupService.class);
+                    // Cancel queued startup work even if a toggle is changed while a launch is pending.
+                    a.stopService(service);
+                    if (choices[1]) a.startForegroundService(service);
                 })
-                .setNegativeButton("返回", null).show();
+                .setNeutralButton("说明", (d, which) -> new AlertDialog.Builder(a).setTitle("适配边界")
+                        .setMessage("默认关闭；不接管 Home，不更改系统默认桌面。待机唤醒使用前台服务，无轮询。\n\n"
+                                + "小米若强制停止应用，可能收不到唤醒事件，必须实机验证。\n\n"
+                                + prefs(a).getString("status", "尚未测试完整重启或待机唤醒"))
+                        .setPositiveButton("返回", (x, y) -> show(a)).show())
+                .setNegativeButton("取消", null).show();
     }
     static void dump(Context c, java.io.PrintWriter out) {
-        out.println("BootStart: enabled=" + enabled(c) + " configured=" + configured(c)
-                + " boot=" + bootCount(c) + " attempted=" + prefs(c).getInt("attempted", -1)
-                + " status=" + prefs(c).getString("status", "none"));
+        out.println("BootStart: supported=" + supported() + " enabled=" + enabled(c)
+                + " wake_enabled=" + wakeEnabled(c) + " status=" + prefs(c).getString("status", "none"));
     }
 }

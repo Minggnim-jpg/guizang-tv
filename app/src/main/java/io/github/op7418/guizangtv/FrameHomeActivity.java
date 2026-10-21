@@ -82,6 +82,7 @@ public final class FrameHomeActivity extends Activity implements HomeSurface.Act
         library.setOnDismissListener(d->{surface.controls.get(0).requestFocus();updateRotation();});library.show();updateRotation();
     }
     @Override protected void onResume(){super.onResume();resumed=true;BootStart.confirm(this);handler.removeCallbacks(tick);tick.run();updateRotation();}
+    @Override public void onWindowFocusChanged(boolean hasFocus){super.onWindowFocusChanged(hasFocus);if(hasFocus)BootStart.confirm(this);}
     @Override protected void onNewIntent(Intent i){super.onNewIntent(i);setIntent(i);}
     @Override protected void onPause(){resumed=false;handler.removeCallbacks(tick);wallpapers.pause();if(library!=null)library.dismiss();super.onPause();}
     @Override protected void onDestroy(){settings.close();wallpapers.destroy();handler.removeCallbacksAndMessages(null);super.onDestroy();}
