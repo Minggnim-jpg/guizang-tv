@@ -16,6 +16,7 @@ public final class StartupRevivalListener extends NotificationListenerService {
         if(!getSystemService(PowerManager.class).isInteractive())
             BootStart.prefs(this).edit().putBoolean("screen_off",true).apply();
         BootStart.ensureAdb(this);
+        ScreensaverReturnService.sync(this);
         if(BootStart.enabled(this)||BootStart.wakeEnabled(this)||BootStart.keepAdb(this)) {
             try { startForegroundService(new Intent(this,StartupService.class).setAction(StartupService.RECOVER)); }
             catch(RuntimeException error){BootStart.status(this,"恢复服务失败："+error.getClass().getSimpleName());}

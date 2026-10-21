@@ -6,4 +6,5 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
     <string name="app_name">哈怪鱼电视</string>
+    <string name="screensaver_return_description">只使用应用包名和窗口类型，在小米屏保退出后返回之前的哈怪鱼桌面。不读取界面文字，不拦截按键，不执行手势。</string>
 </resources>

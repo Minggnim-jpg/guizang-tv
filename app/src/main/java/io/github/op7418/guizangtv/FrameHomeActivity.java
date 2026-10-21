@@ -22,6 +22,7 @@ public final class FrameHomeActivity extends Activity implements HomeSurface.Act
     private ImageView photo, transition;
     private AlertDialog library;
     private boolean resumed;
+    static boolean homeResumed;
     private int selected;
     private final Runnable tick = new Runnable(){public void run(){
         String time=new SimpleDateFormat("HH:mm",Locale.CHINA).format(new Date());
@@ -95,10 +96,10 @@ public final class FrameHomeActivity extends Activity implements HomeSurface.Act
         library=new AlertDialog.Builder(this).setTitle("全部应用").setAdapter(adapter,(d,i)->open(ids.get(i))).setNegativeButton("返回",null).create();
         library.setOnDismissListener(d->{surface.controls.get(0).requestFocus();updateRotation();});library.show();updateRotation();
     }
-    @Override protected void onResume(){super.onResume();resumed=true;BootStart.ensureAdb(this);BootStart.refreshService(this);BootStart.confirm(this);handler.removeCallbacks(tick);tick.run();updateRotation();}
+    @Override protected void onResume(){super.onResume();resumed=true;homeResumed=true;ScreensaverReturnService.resumed();BootStart.ensureAdb(this);BootStart.refreshService(this);BootStart.confirm(this);handler.removeCallbacks(tick);tick.run();updateRotation();}
     @Override public void onWindowFocusChanged(boolean hasFocus){super.onWindowFocusChanged(hasFocus);if(hasFocus)BootStart.confirm(this);}
     @Override protected void onNewIntent(Intent i){super.onNewIntent(i);setIntent(i);}
-    @Override protected void onPause(){resumed=false;handler.removeCallbacks(tick);wallpapers.pause();if(library!=null)library.dismiss();super.onPause();}
+    @Override protected void onPause(){resumed=false;homeResumed=false;handler.removeCallbacks(tick);wallpapers.pause();if(library!=null)library.dismiss();super.onPause();}
     @Override protected void onDestroy(){settings.close();wallpapers.destroy();handler.removeCallbacksAndMessages(null);super.onDestroy();}
     @Override public void onBackPressed(){if(surface.controls.contains(getCurrentFocus()))surface.focusApp();else if(XiaomiControls.enabled()||BootStart.supported())stockHome();else super.onBackPressed();}
     @Override public void dump(String prefix,java.io.FileDescriptor fd,java.io.PrintWriter out,String[] args){

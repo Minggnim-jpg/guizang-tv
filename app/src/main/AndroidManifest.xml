@@ -33,6 +33,11 @@
         <receiver android:name=".StartupReceiver" android:exported="false">
             <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /></intent-filter>
         </receiver>
+        <service android:name=".ScreensaverReturnService" android:exported="true"
+            android:label="哈怪鱼屏保返回" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/screensaver_return" />
+        </service>
         <service android:name=".StartupService" android:exported="false" />
         <service android:name=".StartupRevivalListener" android:exported="true"
             android:label="哈怪鱼启动恢复（不处理通知）"

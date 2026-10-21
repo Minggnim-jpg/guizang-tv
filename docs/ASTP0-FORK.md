@@ -7,7 +7,7 @@
 - applicationId：`io.github.minggnim.guizangtv`，显示名称“哈怪鱼电视”。
 - 官方版 `io.github.op7418.guizangtv` 不覆盖、不卸载，其数据保持原状。
 - CI 产物仍为临时 debug 签名。电视部署包在本机用 `.local-signing/` 中的固定身份重新签名；私钥和密码仅存本机且被 Git 忽略，不上传 GitHub。后续部署必须沿用该签名。
-- 不新增网络权限、遥测、无障碍或悬浮窗。启动恢复使用通知监听绑定（不处理通知内容）；保持 ADB 使用 WRITE_SECURE_SETTINGS，均须显式授权。
+- 不新增网络权限、遥测或悬浮窗。可选的屏保返回使用经明确授权的无障碍窗口事件监听，不读取界面内容、不拦截按键。启动恢复使用通知监听绑定（不处理通知内容）；保持 ADB 使用 WRITE_SECURE_SETTINGS，均须显式授权。
 - 未改 HDMI 型号白名单：支持启动不意味着 HDMI 已适配。
 
 ## 启动设置

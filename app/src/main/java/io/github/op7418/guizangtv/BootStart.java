@@ -22,6 +22,7 @@ public final class BootStart {
         }catch(RuntimeException error){event(c,"恢复 ADB 失败："+error.getClass().getSimpleName());}
     }
     static void refreshService(Context c) {
+        ScreensaverReturnService.sync(c);
         Intent intent=new Intent(c,StartupService.class);
         try {
             if(supported()&&(wakeEnabled(c)||keepAdb(c)))c.startForegroundService(intent);
@@ -84,9 +85,19 @@ public final class BootStart {
                         .setPositiveButton("返回", (x, y) -> show(a)).show())
                 .setNegativeButton("取消", null).show();
     }
+    static void showScreensaverReturn(Activity a) {
+        boolean on=ScreensaverReturnService.enabled(a);
+        new AlertDialog.Builder(a).setTitle("系统屏保退出后返回")
+                .setMessage("仅当屏保从哈怪鱼桌面进入，退出后才返回哈怪鱼。视频应用和主动进入小米桌面不接管。\n\n需要无障碍窗口事件权限，仅使用应用包名和窗口类型，不读取界面文字、不拦截按键。小米清理后会恢复这个已授权服务。\n\n当前："+(on?"开启":"关闭"))
+                .setPositiveButton(on?"关闭":"开启",(d,w)->{
+                    if(!prefs(a).edit().putBoolean("screensaver_return",!on).commit())return;
+                    ScreensaverReturnService.sync(a);
+                    android.widget.Toast.makeText(a,!on?"已开启；如未连接，请在系统无障碍设置中授权":"已关闭屏保返回",android.widget.Toast.LENGTH_LONG).show();
+                }).setNegativeButton("取消",null).show();
+    }
     static void dump(Context c, java.io.PrintWriter out) {
         out.println("BootStart: supported=" + supported() + " enabled=" + enabled(c)
-                + " wake_enabled=" + wakeEnabled(c) + " keep_adb=" + keepAdb(c) + " adb_granted=" + adbGranted(c) + " revival_bound=" + StartupRevivalListener.connected + " status=" + prefs(c).getString("status", "none")
+                + " screensaver_return=" + ScreensaverReturnService.enabled(c) + " screen_return_bound=" + ScreensaverReturnService.connected() + " wake_enabled=" + wakeEnabled(c) + " keep_adb=" + keepAdb(c) + " adb_granted=" + adbGranted(c) + " revival_bound=" + StartupRevivalListener.connected + " status=" + prefs(c).getString("status", "none")
                 + " last_event=" + prefs(c).getString("last_event", "none")
                 + " event_boot=" + prefs(c).getInt("event_boot", -1)
                 + " event_elapsed=" + prefs(c).getLong("event_elapsed", -1));

@@ -33,6 +33,7 @@ public final class StartupService extends Service {
     private final BroadcastReceiver screen=new BroadcastReceiver(){
         @Override public void onReceive(Context c,Intent intent){
             if(Intent.ACTION_SCREEN_OFF.equals(intent.getAction())){
+                ScreensaverReturnService.cancelForSleep();
                 handler.removeCallbacks(afterBoot);handler.removeCallbacks(afterWake);bootPending=false;
                 BootStart.prefs(c).edit().putBoolean("screen_off",true).apply();
                 BootStart.event(c,"收到关屏事件");
