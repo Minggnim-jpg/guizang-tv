@@ -37,7 +37,13 @@ final class HomeIcons {
                 }
                 resource=id.startsWith("hdmi:")?R.drawable.mark_monitor_play:R.drawable.mark_app_window;
         }
-        Drawable mark=context.getDrawable(resource).mutate();mark.setTint(color);return mark;
+        try{
+            Drawable mark=context.getDrawable(resource).mutate();mark.setTint(color);return mark;
+        }catch(RuntimeException invalidVector){
+            Drawable original=fromApk(context,id);
+            if(original!=null)return original;
+            Drawable generic=context.getDrawable(R.drawable.mark_app_window).mutate();generic.setTint(color);return generic;
+        }
     }
     private static Drawable fromApk(Context c,String pkg){
         try{
