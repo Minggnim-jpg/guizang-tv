@@ -16,6 +16,7 @@ public final class StartupService extends Service {
     };
     private final Runnable afterBoot = () -> {
         int boot = Settings.Global.getInt(getContentResolver(), Settings.Global.BOOT_COUNT, -1);
+        BootStart.event(this, "执行完整开机判断，屏幕=" + interactive());
         if (StartupPolicy.boot(BootStart.enabled(this), boot,
                 BootStart.prefs(this).getInt("attempted", -1), SystemClock.elapsedRealtime()) && interactive()) {
             // Record before attempting: a duplicate delivery must not steal focus again.
@@ -26,9 +27,11 @@ public final class StartupService extends Service {
     private final BroadcastReceiver screen = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
             if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                BootStart.event(context, "收到关屏事件");
                 handler.removeCallbacksAndMessages(null);
                 BootStart.prefs(context).edit().putBoolean("screen_off", true).apply();
             } else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+                BootStart.event(context, "收到亮屏事件");
                 boolean off = BootStart.prefs(context).getBoolean("screen_off", false);
                 BootStart.prefs(context).edit().putBoolean("screen_off", false).apply();
                 if (StartupPolicy.wake(BootStart.wakeEnabled(context), off, interactive())) {

@@ -82,7 +82,8 @@ final class XiaomiControls {
     }
 
     static boolean startStockHome(Context context, ComponentName component) {
-        if (!enabled() || !"com.mitv.tvhome".equals(component.getPackageName())) return false;
+        // Home navigation is capability-based; it must not inherit the HDMI model whitelist.
+        if (!"com.mitv.tvhome".equals(component.getPackageName())) return false;
         // The public MAIN alias is exported without HOME_STATE. The directly enumerated
         // MainActivityUserMode target requires Xiaomi's signature permission on this firmware.
         ComponentName alias = new ComponentName("com.mitv.tvhome", "com.mitv.tvhome.MainActivity");
