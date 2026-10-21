@@ -1,16 +1,20 @@
 # 内置壁纸资源索引
 
-用户明确授权公开打包的五张照片之压缩副本；原文件保留本地。图片适用 Unsplash License，来源及署名见 [壁纸说明](../../../../../../docs/WALLPAPERS.md)。
+最长边不超过 1920 像素，缩略图 320×180；来源见 catalog.json 和 docs/WALLPAPERS.md。
 
-| 文件 | 尺寸 | 大小（bytes） | SHA-256 |
-| --- | --- | ---: | --- |
-| [4axNezh03UA-thumb.jpg](4axNezh03UA-thumb.jpg) | 320 × 180 | 12999 | `3d653484f6e5954608272c743cd1c4890b81f36aebcd7212cc7ab39bcd0b9c9d` |
-| [4axNezh03UA.jpg](4axNezh03UA.jpg) | 1920 × 1280 | 316275 | `0f4159eb80612bdd551b0c7239357f1b4fc4da82620daaaa99cc2207931092c8` |
-| [JtF_FvXVQQI-thumb.jpg](JtF_FvXVQQI-thumb.jpg) | 320 × 180 | 14873 | `df9c09de88d6454446429ea6d04e134d1b486ad2aa644d0138baab38f35cbebe` |
-| [JtF_FvXVQQI.jpg](JtF_FvXVQQI.jpg) | 1920 × 1280 | 362436 | `253820318f2d19e9a5f53b0d3a9e83d253d321a3f4349ab5e911c8bbd4c4e95e` |
-| [hqzyUL3M21k-thumb.jpg](hqzyUL3M21k-thumb.jpg) | 320 × 180 | 14006 | `3a9efb80f053ea3ea9b81932e8bc2197e98ea947792419d330a6c5c9e48c8a67` |
-| [hqzyUL3M21k.jpg](hqzyUL3M21k.jpg) | 1920 × 1279 | 573670 | `de97c497c7e4cca0bbc22c693bfd4b849893437c1a020813555e36185f888940` |
-| [rSYsP5TlEAk-thumb.jpg](rSYsP5TlEAk-thumb.jpg) | 320 × 180 | 6703 | `d26e33e5175b2391e8920d9598333cef1b828a68fa001f407a15f9ecb92658e0` |
-| [rSYsP5TlEAk.jpg](rSYsP5TlEAk.jpg) | 1920 × 1280 | 170756 | `13425d67e4d616ea8af45223769a6811d4f8003e0edd2b6a80c615e0530ce0dd` |
-| [vwFvhJf6u_I-thumb.jpg](vwFvhJf6u_I-thumb.jpg) | 320 × 180 | 11091 | `46c37b42333f4a875098479a7be94bec990a19f3b82d8dd0aa78318564b23f16` |
-| [vwFvhJf6u_I.jpg](vwFvhJf6u_I.jpg) | 1920 × 1311 | 440809 | `e467581bed4cedf1a34ce3d78e3f36e86ae7de5bfe102d629071ad80386b9601` |
+| 文件 | 尺寸 | 字节 | SHA-256 |
+|---|---|---:|---|
+| 4axNezh03UA.jpg | 1920 × 1280 | 316275 | `0f4159eb80612bdd551b0c7239357f1b4fc4da82620daaaa99cc2207931092c8` |
+| 4axNezh03UA-thumb.jpg | 320 × 180 | 12999 | `3d653484f6e5954608272c743cd1c4890b81f36aebcd7212cc7ab39bcd0b9c9d` |
+| selected-A1.jpg | 1920 × 1080 | 306276 | `4d4deca98b06ca96c71a65b5d3d07fd196e106ce0d9eb0f20291188b069b4413` |
+| selected-A1-thumb.jpg | 320 × 180 | 6948 | `f10e7683ffd9c82592277c7ac02b79d19c298e58a2f6c3c484336bc6cf19635b` |
+| selected-A2.jpg | 1920 × 1272 | 282771 | `ee25a6281624aec1ab4b15541a4efc00a1835d33d4673b25332bd3c0c38c12a2` |
+| selected-A2-thumb.jpg | 320 × 180 | 7127 | `b2d8071471ab7ceea75563e1931607ce85919765349943d479d07f247d01220a` |
+| selected-A3.jpg | 1920 × 1440 | 276590 | `92e465e505cb8fd0fc9891f719a6347da61d8d5fd6308e7a3f27ad0aff4aa68d` |
+| selected-A3-thumb.jpg | 320 × 180 | 9240 | `c1588976a7ad0f454cc40b5221cc23f880a37539a50b802e1df60181eea2855f` |
+| selected-B1.jpg | 1920 × 938 | 282798 | `53c7aac80ea7713d3b150714cb92a469a945c91bc7da0f8047d043153d6acbad` |
+| selected-B1-thumb.jpg | 320 × 180 | 13566 | `2a6c2a64c3681b3408f73f471d62e6ca42ae0a4abb47dc1d73c59250d0497990` |
+| selected-B3.jpg | 1920 × 1313 | 299099 | `e6827bd492e79f11789c86eb3f4606553410c932ec55d9bf7b7e3d8a5943e280` |
+| selected-B3-thumb.jpg | 320 × 180 | 15974 | `b014a23dfcbc2f3582894e249726e73d59c44c94d8e1601838597fbaf47f0383` |
+| selected-C1.jpg | 1920 × 1280 | 120288 | `ce45bf2553dfd4b02939e1b0e70cee0cc26996382d224bc5e267fdc7d35e8327` |
+| selected-C1-thumb.jpg | 320 × 180 | 4553 | `7f9d4c5112b20a095a5cc19cfb3342d4bc73aeaec0cecdff19121c5c427dcb49` |

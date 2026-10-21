@@ -1,19 +1,29 @@
-Bundled photos are licensed under the Unsplash License, not the code MIT license.
-https://unsplash.com/license
-
-雾中雪岭 — Arina Avdzhian
-https://unsplash.com/photos/a-black-and-white-photo-of-a-snow-covered-mountain-rSYsP5TlEAk
-
-雨林山路 — Geio Tischler
-https://unsplash.com/photos/a-winding-road-in-the-middle-of-a-forest-hqzyUL3M21k
+Bundled wallpaper sources. Code MIT license does not override image licenses.
 
 热带绿叶 — Łukasz Rawa
 https://unsplash.com/photos/green-leaves-and-foliage-create-a-dark-and-lush-scene-4axNezh03UA
+Unsplash License — https://unsplash.com/license
 
-山间彩虹 — Pascal Debrunner
-https://unsplash.com/photos/a-rainbow-arches-over-a-majestic-mountain-landscape-vwFvhJf6u_I
+A1 · 雾中山湖 — Dmytro Yarish
+https://unsplash.com/photos/misty-mountains-reflected-in-a-calm-lake-LyudO7gnERc
+Unsplash License — https://unsplash.com/license
 
-流光花影 — Patrick Shaun
-https://unsplash.com/photos/a-blurry-photo-of-a-bunch-of-flowers-JtF_FvXVQQI
+A2 · 落日沙丘 — Fabian Struwe
+https://unsplash.com/photos/sand-dunes-during-sunset-4cloovdyuvw
+Unsplash License — https://unsplash.com/license
 
-Verified on 2026-10-20. Resized and JPEG-compressed copies; originals unchanged.
+A3 · 深蓝海浪 — Berti Benbanaste
+https://unsplash.com/photos/aerial-photography-of-ocean-view--pkhxZm4s8I
+Unsplash License — https://unsplash.com/license
+
+B1 · 莫奈·睡莲 — Claude Monet / reproduction: Wmpearl
+https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Water_Lilies,_1917-1919.JPG
+Public domain / PD-Art — https://creativecommons.org/publicdomain/mark/1.0/
+
+B3 · 葛饰北斋·神奈川冲浪里 — Katsushika Hokusai / The Metropolitan Museum of Art
+https://commons.wikimedia.org/wiki/File:%E3%80%8C%E5%AF%8C%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E7%A5%9E%E5%A5%88%E5%B7%9D%E6%B2%96%E6%B5%AA%E8%A3%8F%E3%80%8D-Under_the_Wave_off_Kanagawa_(Kanagawa_oki_nami_ura),_or_The_Great_Wave,_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanj%C5%ABrokkei)_MET_DP141042.jpg
+CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+
+C1 · 石墨曲面 — Pawel Czerwinski
+https://unsplash.com/photos/a-close-up-of-a-black-background-with-curves-5RZM_GW1DpU
+Unsplash License — https://unsplash.com/license
