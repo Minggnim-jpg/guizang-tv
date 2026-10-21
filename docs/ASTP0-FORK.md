@@ -6,7 +6,7 @@
 
 - applicationId：`io.github.minggnim.guizangtv`，显示名称“归藏电视·定制”。
 - 官方版 `io.github.op7418.guizangtv` 不覆盖、不卸载，其数据保持原状。
-- 当前构建产物用于测试；后续长期升级需要固定签名，不能假定不同 CI 运行的 debug 签名相同。
+- CI 产物仍为临时 debug 签名。电视部署包在本机用 `.local-signing/` 中的固定身份重新签名；私钥和密码仅存本机且被 Git 忽略，不上传 GitHub。后续部署必须沿用该签名。
 - 不新增网络权限、遥测、无障碍、通知监听、悬浮窗或修改系统设置权限。
 - 未改 HDMI 型号白名单：支持启动不意味着 HDMI 已适配。
 
