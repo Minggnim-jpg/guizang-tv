@@ -39,8 +39,12 @@ public final class StartupService extends Service {
         }
     };
     private boolean interactive() { return getSystemService(PowerManager.class).isInteractive(); }
+    // This service is deliberately unreachable outside Android 9. Android 14's foreground
+    // service types have no applicable role here; do not grant unused newer-platform powers.
+    @android.annotation.SuppressLint("ForegroundServiceType")
     @Override public void onCreate() {
         super.onCreate();
+        if (!BootStart.supported()) { stopSelf(); return; }
         NotificationManager manager = getSystemService(NotificationManager.class);
         manager.createNotificationChannel(new NotificationChannel("startup", "归藏启动服务", NotificationManager.IMPORTANCE_LOW));
         PendingIntent open = PendingIntent.getActivity(this, 0, new Intent(this, FrameHomeActivity.class),
@@ -48,7 +52,6 @@ public final class StartupService extends Service {
         startForeground(1, new Notification.Builder(this, "startup")
                 .setSmallIcon(android.R.drawable.ic_menu_view).setContentTitle("归藏待机唤醒服务")
                 .setContentText("可在归藏的电视与启动设置中关闭").setContentIntent(open).setOngoing(true).build());
-        if (!BootStart.supported()) { stopSelf(); return; }
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(screen, filter);
