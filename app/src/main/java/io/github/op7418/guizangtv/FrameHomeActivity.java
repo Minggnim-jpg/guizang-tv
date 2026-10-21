@@ -78,7 +78,21 @@ public final class FrameHomeActivity extends Activity implements HomeSurface.Act
         items.discover();List<String> ids=new ArrayList<>(items.names.keySet());ids.removeIf(id->id.startsWith("hdmi:") || (getPackageManager().getLeanbackLaunchIntentForPackage(id)==null && getPackageManager().getLaunchIntentForPackage(id)==null));
         Collator collator=Collator.getInstance(Locale.CHINA);ids.sort((a,b)->collator.compare(items.name(a),items.name(b)));
         String[] labels=new String[ids.size()];for(int i=0;i<labels.length;i++)labels[i]=items.name(ids.get(i));
-        library=new AlertDialog.Builder(this).setTitle("全部应用").setItems(labels,(d,i)->open(ids.get(i))).setNegativeButton("返回",null).create();
+        android.widget.BaseAdapter adapter=new android.widget.BaseAdapter(){
+            public int getCount(){return ids.size();}
+            public Object getItem(int position){return ids.get(position);}
+            public long getItemId(int position){return position;}
+            public View getView(int position,View recycled,android.view.ViewGroup parent){
+                LinearLayout row=new LinearLayout(FrameHomeActivity.this);row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPadding(dp(20),dp(8),dp(20),dp(8));
+                AppIconTile icon=new AppIconTile(FrameHomeActivity.this,ids.get(position),false,25);
+                row.addView(icon,new LinearLayout.LayoutParams(dp(42),dp(42)));
+                TextView name=new TextView(FrameHomeActivity.this);name.setText(labels[position]);name.setTextSize(19);name.setTextColor(0xFFF5F4EF);
+                LinearLayout.LayoutParams text=new LinearLayout.LayoutParams(-1,-2);text.leftMargin=dp(18);row.addView(name,text);
+                return row;
+            }
+        };
+        library=new AlertDialog.Builder(this).setTitle("全部应用").setAdapter(adapter,(d,i)->open(ids.get(i))).setNegativeButton("返回",null).create();
         library.setOnDismissListener(d->{surface.controls.get(0).requestFocus();updateRotation();});library.show();updateRotation();
     }
     @Override protected void onResume(){super.onResume();resumed=true;BootStart.confirm(this);handler.removeCallbacks(tick);tick.run();updateRotation();}

@@ -23,3 +23,6 @@ app/src/main/assets/wallpapers/*
 !app/src/main/assets/wallpapers/UNSPLASH-NOTICE.txt
 # Only the five explicitly selected, source-verified photos are public assets.
 !app/src/main/assets/wallpapers/bundled/
+
+.local-signing/
+.local-artifacts/

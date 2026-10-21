@@ -22,6 +22,7 @@ final class HomeSurface extends FrameLayout {
     private android.graphics.Bitmap material;
     private int materialRequest;
     private DockShelf dockShelf;
+    private final Map<View,AppIconTile> iconTiles=new HashMap<>();
     HomeSurface(Context c, HomeAppearance style, HomeItems items, Drawable wallpaper, int selected,
                 boolean preview, Actions actions) {
         super(c); this.style=style;this.preview=preview;this.actions=actions;
@@ -58,14 +59,15 @@ final class HomeSurface extends FrameLayout {
             TextView label=text(items.name(id),dock?14:style.size());label.setTypeface(style.typeface());
             label.setMaxWidth(dp(dock?116:style.get("apps")==0?510:450));
             label.setMaxLines(1);label.setEllipsize(TextUtils.TruncateAt.END);
-            ImageView icon=new ImageView(c);icon.setImageDrawable(HomeIcons.get(c,id,style.ink()));
+            AppIconTile icon=new AppIconTile(c,id,style.light(),dock?44:24);
+            iconTiles.put(tile,icon);tile.setClipChildren(false);tile.setClipToPadding(false);
             int mode=style.get("apps");
-            if(mode!=0){LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(dp(dock?58:32),dp(dock?58:32));if(!dock)ip.rightMargin=dp(16);else ip.bottomMargin=dp(6);tile.addView(icon,ip);}
+            if(mode!=0){LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(dp(dock?70:36),dp(dock?70:36));if(!dock)ip.rightMargin=dp(16);else ip.bottomMargin=dp(10);tile.addView(icon,ip);}
             // Icon-only mode still reveals the focused app name and keeps its accessible label.
             tile.addView(label,new LinearLayout.LayoutParams(dock?-1:-2,dock?dp(28):-2));
             label.setGravity(dock?Gravity.CENTER:Gravity.CENTER_VERTICAL);
             TextView tag=text(suffix,11);tag.setAlpha(.7f);
-            LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(-2,dock?dp(16):-2);if(!dock)tp.leftMargin=dp(16);tile.addView(tag,tp);
+            LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(-2,dock?dp(16):-2);if(!dock)tp.leftMargin=dp(16);if(!suffix.isEmpty())tile.addView(tag,tp);
             LinearLayout.LayoutParams row=new LinearLayout.LayoutParams(dock?dp(132):-2,dock?-1:dp(65));
             if(dock&&i<items.order.size()-1)row.rightMargin=dp(10);list.addView(tile,row);apps.add(tile);
             wire(tile,()->actions.open(id));tile.setContentDescription(items.name(id)+(suffix.isEmpty()?"":"，"+suffix));
@@ -112,10 +114,13 @@ final class HomeSurface extends FrameLayout {
     }
     void focusApp(){apps.get(selected).requestFocus();}
     private void paint(View v,TextView label,boolean focused,boolean iconsOnly){
-        v.setAlpha(focused?1f:style.faded());label.setVisibility(iconsOnly&&!focused&&style.get("layout")==0?GONE:VISIBLE);
+        boolean app=iconTiles.containsKey(v);
+        v.setAlpha(app?1f:focused?1f:0.78f);
+        if(app){iconTiles.get(v).focus(focused,!preview);label.setAlpha(focused?1f:0.86f);}
+        label.setVisibility(iconsOnly&&!focused&&style.get("layout")==0?GONE:VISIBLE);
         if(iconsOnly&&style.get("layout")==1)label.setAlpha(focused?1:0);
         if(dockShelf!=null&&apps.contains(v)){
-            v.setBackground(WallpaperMaterial.rounded(focused&&style.get("focus")==1?(style.light()?0x20000000:0x26FFFFFF):Color.TRANSPARENT,dp(14)));
+            v.setBackgroundColor(Color.TRANSPARENT);
         }else if(style.get("focus")==1&&focused){
             int veil=style.light()?0x2AFFFFFF:new int[]{0x60101418,0x48101418,0x30101418}[style.get("material")];
             v.setBackground(new WallpaperMaterial.Glass(this,v,material,dp(12),veil));

@@ -58,5 +58,50 @@
     "name": "bilibili",
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/bilibili.svg",
     "license": "CC0-1.0"
+  },
+  {
+    "name": "emby",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/emby.svg",
+    "license": "CC0-1.0"
+  },
+  {
+    "name": "aurora",
+    "source": "Locally drawn monochrome identification mark for the personal TV launcher; not an official brand asset",
+    "license": "MIT"
+  },
+  {
+    "name": "kiwi",
+    "source": "Locally drawn monochrome identification mark for the personal TV launcher; not an official brand asset",
+    "license": "MIT"
+  },
+  {
+    "name": "quark",
+    "source": "Locally drawn monochrome identification mark for the personal TV launcher; not an official brand asset",
+    "license": "MIT"
+  },
+  {
+    "name": "youku",
+    "source": "Locally drawn monochrome identification mark for the personal TV launcher; not an official brand asset",
+    "license": "MIT"
+  },
+  {
+    "name": "mango",
+    "source": "Locally drawn monochrome identification mark for the personal TV launcher; not an official brand asset",
+    "license": "MIT"
+  },
+  {
+    "name": "moonlight",
+    "source": "Locally drawn monochrome identification mark for the personal TV launcher; not an official brand asset",
+    "license": "MIT"
+  },
+  {
+    "name": "bell",
+    "source": "Locally drawn monochrome identification mark for the personal TV launcher; not an official brand asset",
+    "license": "MIT"
+  },
+  {
+    "name": "shield",
+    "source": "Locally drawn monochrome identification mark for the personal TV launcher; not an official brand asset",
+    "license": "MIT"
   }
 ]
