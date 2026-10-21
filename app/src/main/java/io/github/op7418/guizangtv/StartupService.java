@@ -2,102 +2,105 @@ package io.github.op7418.guizangtv;
 
 import android.app.*;
 import android.content.*;
+import android.database.ContentObserver;
 import android.os.*;
 import android.provider.Settings;
 
-/** Experimental Android 9 startup service. No Home interception, polling or wake locks. */
+/** Android 9 startup/wake service. Event-driven, no polling, wake locks or Home interception. */
 public final class StartupService extends Service {
-    static final String BOOT = "startup.boot";
-    private final Handler handler = new Handler(Looper.getMainLooper());
-    private boolean registered;
-    private final Runnable afterWake = () -> {
-        if (BootStart.wakeEnabled(this) && interactive()) launch("待机唤醒");
+    static final String BOOT="startup.boot", RECOVER="startup.recover";
+    private final Handler handler=new Handler(Looper.getMainLooper());
+    private boolean registered, observing, bootPending;
+    private final ContentObserver adbObserver=new ContentObserver(handler){
+        @Override public void onChange(boolean selfChange){BootStart.ensureAdb(StartupService.this);}
+    };
+    private final Runnable afterWake=()->{
+        BootStart.ensureAdb(this);
+        if(BootStart.wakeEnabled(this)&&interactive())launch("待机唤醒");
         finishIfTemporary();
     };
-    private final Runnable afterBoot = () -> {
-        int boot = Settings.Global.getInt(getContentResolver(), Settings.Global.BOOT_COUNT, -1);
-        BootStart.event(this, "执行完整开机判断，屏幕=" + interactive());
-        if (StartupPolicy.boot(BootStart.enabled(this), boot,
-                BootStart.prefs(this).getInt("attempted", -1), SystemClock.elapsedRealtime()) && interactive()) {
-            // Record before attempting: a duplicate delivery must not steal focus again.
-            if (BootStart.prefs(this).edit().putInt("attempted", boot).commit()) launch("完整开机");
-        }
+    private final Runnable afterBoot=()->{
+        bootPending=false;
+        int boot=bootCount();
+        BootStart.ensureAdb(this);
+        String skip=BootStartPolicy.skipReason(true,BootStart.enabled(this),boot,
+                BootStart.prefs(this).getInt("attempted",-1),SystemClock.elapsedRealtime());
+        if(skip!=null)BootStart.status(this,skip);
+        else if(!interactive())BootStart.status(this,"开机时屏幕未亮，未请求启动");
+        else if(BootStart.prefs(this).edit().putInt("attempted",boot).commit())launch("完整开机");
         finishIfTemporary();
     };
-    private final BroadcastReceiver screen = new BroadcastReceiver() {
-        @Override public void onReceive(Context context, Intent intent) {
-            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-                BootStart.event(context, "收到关屏事件");
-                handler.removeCallbacksAndMessages(null);
-                BootStart.prefs(context).edit().putBoolean("screen_off", true).apply();
-            } else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
-                BootStart.event(context, "收到亮屏事件");
-                boolean off = BootStart.prefs(context).getBoolean("screen_off", false);
-                BootStart.prefs(context).edit().putBoolean("screen_off", false).apply();
-                if (StartupPolicy.wake(BootStart.wakeEnabled(context), off, interactive())) {
-                    handler.removeCallbacks(afterWake);
-                    handler.postDelayed(afterWake, 2000);
-                }
+    private final BroadcastReceiver screen=new BroadcastReceiver(){
+        @Override public void onReceive(Context c,Intent intent){
+            if(Intent.ACTION_SCREEN_OFF.equals(intent.getAction())){
+                handler.removeCallbacks(afterBoot);handler.removeCallbacks(afterWake);bootPending=false;
+                BootStart.prefs(c).edit().putBoolean("screen_off",true).apply();
+                BootStart.event(c,"收到关屏事件");
+            }else if(Intent.ACTION_SCREEN_ON.equals(intent.getAction())){
+                BootStart.event(c,"收到亮屏事件");
+                BootStart.ensureAdb(c);recoverWake();
             }
         }
     };
-    private boolean interactive() { return getSystemService(PowerManager.class).isInteractive(); }
-    // This service is deliberately unreachable outside Android 9. Android 14's foreground
-    // service types have no applicable role here; do not grant unused newer-platform powers.
+    private int bootCount(){return Settings.Global.getInt(getContentResolver(),Settings.Global.BOOT_COUNT,-1);}
+    private boolean interactive(){return getSystemService(PowerManager.class).isInteractive();}
+    private void recoverWake(){
+        boolean off=BootStart.prefs(this).getBoolean("screen_off",false);
+        if(!interactive())return;
+        BootStart.prefs(this).edit().putBoolean("screen_off",false).apply();
+        if(StartupPolicy.wake(BootStart.wakeEnabled(this),off,true)){
+            handler.removeCallbacks(afterWake);handler.postDelayed(afterWake,2000);
+        }
+    }
+    // This service is only enabled on ASTP0 / API 28, before Android 14 service types exist.
     @android.annotation.SuppressLint("ForegroundServiceType")
-    @Override public void onCreate() {
+    @Override public void onCreate(){
         super.onCreate();
-        if (!BootStart.supported()) { stopSelf(); return; }
-        NotificationManager manager = getSystemService(NotificationManager.class);
-        manager.createNotificationChannel(new NotificationChannel("startup", "归藏启动服务", NotificationManager.IMPORTANCE_LOW));
-        PendingIntent open = PendingIntent.getActivity(this, 0, new Intent(this, FrameHomeActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        startForeground(1, new Notification.Builder(this, "startup")
-                .setSmallIcon(android.R.drawable.ic_menu_view).setContentTitle("归藏待机唤醒服务")
-                .setContentText("可在归藏的电视与启动设置中关闭").setContentIntent(open).setOngoing(true).build());
-        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        registerReceiver(screen, filter);
-        registered = true;
+        if(!BootStart.supported()){stopSelf();return;}
+        NotificationManager manager=getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(new NotificationChannel("startup","归藏启动服务",NotificationManager.IMPORTANCE_LOW));
+        PendingIntent open=PendingIntent.getActivity(this,0,new Intent(this,FrameHomeActivity.class),
+                PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+        startForeground(1,new Notification.Builder(this,"startup")
+                .setSmallIcon(android.R.drawable.ic_menu_view).setContentTitle("归藏启动与调试服务")
+                .setContentText("可在电视与启动设置中关闭").setContentIntent(open).setOngoing(true).build());
+        IntentFilter filter=new IntentFilter(Intent.ACTION_SCREEN_ON);filter.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(screen,filter);registered=true;
+        getContentResolver().registerContentObserver(Settings.Global.getUriFor(Settings.Global.ADB_ENABLED),false,adbObserver);
+        observing=true;
+        if(!interactive())BootStart.prefs(this).edit().putBoolean("screen_off",true).apply();
+        BootStart.ensureAdb(this);
     }
-    @Override public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!BootStart.supported() || (!BootStart.enabled(this) && !BootStart.wakeEnabled(this))) {
-            stopSelf(); return START_NOT_STICKY;
+    @Override public int onStartCommand(Intent intent,int flags,int startId){
+        if(!BootStart.supported()||(!BootStart.enabled(this)&&!BootStart.wakeEnabled(this)&&!BootStart.keepAdb(this))){
+            stopSelf();return START_NOT_STICKY;
         }
-        if (intent != null && BOOT.equals(intent.getAction())) {
-            BootStart.prefs(this).edit().putBoolean("screen_off", false).apply();
-            handler.removeCallbacks(afterBoot);
-            handler.postDelayed(afterBoot, 3000);
-        } else if (intent == null) {
-            // A process restart is not a wake event unless a prior screen-off was observed.
-            boolean off = BootStart.prefs(this).getBoolean("screen_off", false);
-            if (StartupPolicy.wake(BootStart.wakeEnabled(this), off, interactive())) {
-                BootStart.prefs(this).edit().putBoolean("screen_off", false).apply();
-                handler.postDelayed(afterWake, 2000);
-            }
-        }
-        finishIfTemporaryUnlessBoot(intent);
-        return BootStart.wakeEnabled(this) ? START_STICKY : START_NOT_STICKY;
+        BootStart.ensureAdb(this);
+        String action=intent==null?null:intent.getAction();
+        boolean recovering=RECOVER.equals(action);
+        boolean eligible=StartupPolicy.boot(BootStart.enabled(this),bootCount(),
+                BootStart.prefs(this).getInt("attempted",-1),SystemClock.elapsedRealtime());
+        if(BOOT.equals(action)||(recovering&&eligible)){
+            if(BOOT.equals(action))BootStart.prefs(this).edit().putBoolean("screen_off",false).apply();
+            handler.removeCallbacks(afterWake);handler.removeCallbacks(afterBoot);
+            bootPending=true;handler.postDelayed(afterBoot,3000);
+        }else if(intent==null||recovering){recoverWake();}
+        finishIfTemporary();
+        return BootStart.wakeEnabled(this)||BootStart.keepAdb(this)?START_STICKY:START_NOT_STICKY;
     }
-    private void finishIfTemporaryUnlessBoot(Intent intent) {
-        if (intent == null || !BOOT.equals(intent.getAction())) finishIfTemporary();
+    private void finishIfTemporary(){if(!bootPending&&!BootStart.wakeEnabled(this)&&!BootStart.keepAdb(this))stopSelf();}
+    private void launch(String reason){
+        try{
+            BootStart.status(this,reason+"：已请求启动，等待前台确认");
+            startActivity(new Intent(this,FrameHomeActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra("startup.reason",reason));
+        }catch(RuntimeException error){BootStart.status(this,reason+"失败："+error.getClass().getSimpleName());}
     }
-    private void finishIfTemporary() { if (!BootStart.wakeEnabled(this)) stopSelf(); }
-    private void launch(String reason) {
-        try {
-            startActivity(new Intent(this, FrameHomeActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra("startup.reason", reason));
-            BootStart.status(this, reason + "：已请求启动，等待前台确认");
-        } catch (RuntimeException error) {
-            BootStart.status(this, reason + "失败：" + error.getClass().getSimpleName());
-        }
-    }
-    @Override public void onDestroy() {
+    @Override public void onDestroy(){
         handler.removeCallbacksAndMessages(null);
-        if (registered) unregisterReceiver(screen);
-        stopForeground(true);
-        super.onDestroy();
+        if(registered)unregisterReceiver(screen);
+        if(observing)getContentResolver().unregisterContentObserver(adbObserver);
+        stopForeground(true);super.onDestroy();
     }
-    @Override public IBinder onBind(Intent intent) { return null; }
+    @Override public IBinder onBind(Intent intent){return null;}
 }

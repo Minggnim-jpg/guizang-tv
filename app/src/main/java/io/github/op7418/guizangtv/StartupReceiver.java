@@ -8,7 +8,8 @@ public final class StartupReceiver extends BroadcastReceiver {
     @Override public void onReceive(Context context, Intent intent) {
         if (!Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) || !BootStart.supported()) return;
         BootStart.event(context, "收到系统完整开机广播");
-        if (BootStart.enabled(context) || BootStart.wakeEnabled(context)) {
+        BootStart.ensureAdb(context);
+        if (BootStart.enabled(context) || BootStart.wakeEnabled(context) || BootStart.keepAdb(context)) {
             try {
             context.startForegroundService(new Intent(context, StartupService.class)
                     .setAction(StartupService.BOOT));

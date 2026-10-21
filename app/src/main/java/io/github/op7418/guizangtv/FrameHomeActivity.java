@@ -95,7 +95,7 @@ public final class FrameHomeActivity extends Activity implements HomeSurface.Act
         library=new AlertDialog.Builder(this).setTitle("全部应用").setAdapter(adapter,(d,i)->open(ids.get(i))).setNegativeButton("返回",null).create();
         library.setOnDismissListener(d->{surface.controls.get(0).requestFocus();updateRotation();});library.show();updateRotation();
     }
-    @Override protected void onResume(){super.onResume();resumed=true;BootStart.confirm(this);handler.removeCallbacks(tick);tick.run();updateRotation();}
+    @Override protected void onResume(){super.onResume();resumed=true;BootStart.ensureAdb(this);BootStart.refreshService(this);BootStart.confirm(this);handler.removeCallbacks(tick);tick.run();updateRotation();}
     @Override public void onWindowFocusChanged(boolean hasFocus){super.onWindowFocusChanged(hasFocus);if(hasFocus)BootStart.confirm(this);}
     @Override protected void onNewIntent(Intent i){super.onNewIntent(i);setIntent(i);}
     @Override protected void onPause(){resumed=false;handler.removeCallbacks(tick);wallpapers.pause();if(library!=null)library.dismiss();super.onPause();}
